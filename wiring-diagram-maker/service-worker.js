@@ -1,5 +1,5 @@
 const CACHE_PREFIX="wiring-maker-shell-v";
-const CACHE_NAME="wiring-maker-shell-v19";
+const CACHE_NAME="wiring-maker-shell-v20";
 const APP_FILES=["./index.html","./manifest.webmanifest","./apple-touch-icon.png","./icon-192.png","./icon-512.png"];
 const APP_ENTRY=new URL("./index.html",self.registration.scope);
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_FILES)).then(()=>self.skipWaiting()))});
