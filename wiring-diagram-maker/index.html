@@ -6,6 +6,7 @@
 .mobile-only{display:none}
 @media(max-width:740px){
 html,body{width:100%;height:100%;overflow:hidden}
+body.cable-draw-mode #viewport{touch-action:none;overscroll-behavior:none}
 body{position:fixed;inset:0}
 .app{height:100dvh;min-height:0;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
 .top{flex:none;min-height:0;padding:calc(env(safe-area-inset-top) + 6px) 8px 6px;gap:6px}
@@ -40,8 +41,8 @@ body.mobile-palette-open .left,body.mobile-props-open .right{display:block}
 (()=>{const body=document.body,palette=document.getElementById('mobilePaletteBtn'),props=document.getElementById('mobilePropsBtn'),viewport=document.getElementById('viewport'),canvas=document.getElementById('canvas');if(!palette||!props||!viewport||!canvas)return;
 function closeDrawers(){body.classList.remove('mobile-palette-open','mobile-props-open');palette.setAttribute('aria-expanded','false');props.setAttribute('aria-expanded','false')}
 palette.addEventListener('click',()=>{const open=!body.classList.contains('mobile-palette-open');closeDrawers();if(open){body.classList.add('mobile-palette-open');palette.setAttribute('aria-expanded','true')}});props.addEventListener('click',()=>{const open=!body.classList.contains('mobile-props-open');closeDrawers();if(open){body.classList.add('mobile-props-open');props.setAttribute('aria-expanded','true')}});
-document.querySelectorAll('.left .shape,.left .wire-type').forEach(item=>item.addEventListener('click',()=>requestAnimationFrame(closeDrawers)));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawers()});
+document.querySelectorAll('.left .shape,.left .wire-type').forEach(item=>item.addEventListener('click',()=>requestAnimationFrame(()=>{closeDrawers();body.classList.toggle('cable-draw-mode',!!document.querySelector('.wire-type.active'))})));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawers();body.classList.remove('cable-draw-mode')}});
 let pinch=null;function distance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 viewport.addEventListener('touchstart',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1],rect=viewport.getBoundingClientRect(),x=(a.clientX+b.clientX)/2,y=(a.clientY+b.clientY)/2,z=Number(window.zoom)||parseFloat(document.getElementById('zoomLabel')?.textContent)/100||1;pinch={distance:distance(a,b),zoom:z,pointX:(x-rect.left+viewport.scrollLeft)/z,pointY:(y-rect.top+viewport.scrollTop)/z,centerX:x-rect.left,centerY:y-rect.top}}},{passive:true});
 viewport.addEventListener('touchmove',e=>{if(e.touches.length!==2||!pinch)return;e.preventDefault();const d=distance(e.touches[0],e.touches[1]),next=Math.max(.4,Math.min(1.6,pinch.zoom*d/pinch.distance));const label=document.getElementById('zoomLabel'),old=Number.parseInt(label?.textContent,10)||100,delta=Math.round((next-pinch.zoom)*100/10)*10,newPct=Math.max(40,Math.min(160,old+delta));document.getElementById('zoomLabel')?.textContent;const zoomButton=next;window.__mobileZoom=zoomButton;
